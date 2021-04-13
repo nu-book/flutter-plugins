@@ -79,6 +79,10 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     }
   }
 
+  public interface FlutterWebViewClientFactory {
+    FlutterWebViewClient createWebViewClient(MethodChannel methodChannel);
+  }
+
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @SuppressWarnings("unchecked")
   FlutterWebView(
@@ -86,7 +90,8 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       BinaryMessenger messenger,
       int id,
       Map<String, Object> params,
-      View containerView) {
+      View containerView,
+      FlutterWebViewClientFactory webviewClientFactory) {
 
     DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
     DisplayManager displayManager =
@@ -113,7 +118,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
     methodChannel.setMethodCallHandler(this);
 
-    flutterWebViewClient = new FlutterWebViewClient(methodChannel);
+    flutterWebViewClient = webviewClientFactory.createWebViewClient(methodChannel);
     Map<String, Object> settings = (Map<String, Object>) params.get("settings");
     if (settings != null) applySettings(settings);
 

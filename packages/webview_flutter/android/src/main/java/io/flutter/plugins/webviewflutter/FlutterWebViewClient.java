@@ -26,13 +26,13 @@ import java.util.Map;
 // shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
 // invoked by the webview on older Android devices, without it pages that use iframes will
 // be broken when a navigationDelegate is set on Android version earlier than N.
-class FlutterWebViewClient {
+public class FlutterWebViewClient {
   private static final String TAG = "FlutterWebViewClient";
   private final MethodChannel methodChannel;
   private boolean hasNavigationDelegate;
   boolean hasProgressTracking;
 
-  FlutterWebViewClient(MethodChannel methodChannel) {
+  public FlutterWebViewClient(MethodChannel methodChannel) {
     this.methodChannel = methodChannel;
   }
 
@@ -160,7 +160,7 @@ class FlutterWebViewClient {
   // This method attempts to avoid using WebViewClientCompat due to bug
   // https://bugs.chromium.org/p/chromium/issues/detail?id=925887. Also, see
   // https://github.com/flutter/flutter/issues/29446.
-  WebViewClient createWebViewClient(boolean hasNavigationDelegate) {
+  public WebViewClient createWebViewClient(boolean hasNavigationDelegate) {
     this.hasNavigationDelegate = hasNavigationDelegate;
 
     if (!hasNavigationDelegate || android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

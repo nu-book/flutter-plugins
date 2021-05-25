@@ -36,6 +36,27 @@ public class Connectivity {
     return getNetworkTypeLegacy();
   }
 
+  String getNetworkType(Network network) {
+    if (network == null) {
+      return "none";
+    }
+    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+      if (capabilities == null) {
+        return "none";
+      }
+      if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+              || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+        return "wifi";
+      }
+      if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+        return "mobile";
+      }
+    }
+
+    return getNetworkTypeLegacy();
+  }
+
   @SuppressWarnings("deprecation")
   private String getNetworkTypeLegacy() {
     // handle type for Android versions less than Android 9

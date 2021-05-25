@@ -1,4 +1,4 @@
-// Copyright 2013 The Flutter Authors. All rights reserved.
+// Copyright 2019 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -13,6 +13,9 @@ import android.net.Network;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+
+import java.util.ArrayList;
+
 import io.flutter.plugin.common.EventChannel;
 
 /**
@@ -43,14 +46,20 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       networkCallback =
           new ConnectivityManager.NetworkCallback() {
+
+            private ArrayList<Network> availableNetworks = new ArrayList<>();
+
             @Override
             public void onAvailable(Network network) {
-              sendEvent();
+              availableNetworks.remove(network);
+              availableNetworks.add(0, network);
+              sendEvent(network);
             }
 
             @Override
             public void onLost(Network network) {
-              sendEvent();
+              availableNetworks.remove(network);
+              sendEvent(availableNetworks.isEmpty() ? null : availableNetworks.get(0));
             }
           };
       connectivity.getConnectivityManager().registerDefaultNetworkCallback(networkCallback);
@@ -82,12 +91,13 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver
     return networkCallback;
   }
 
-  private void sendEvent() {
+  private void sendEvent(Network network) {
+    final String networkType = connectivity.getNetworkType(network);
     Runnable runnable =
         new Runnable() {
           @Override
           public void run() {
-            events.success(connectivity.getNetworkType());
+            events.success(networkType);
           }
         };
     mainHandler.post(runnable);
